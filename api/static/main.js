@@ -48,18 +48,36 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Error en la respuesta del servidor");
       }
 
-      const blob = await response.blob();
-      imageUrl = URL.createObjectURL(blob);
+      const contentType = response.headers.get("Content-Type") || "";
 
-      outputImage.src = imageUrl;
-      resultSection.classList.remove("hidden");
+      if (contentType.startsWith("image/")) {
+        const blob = await response.blob();
+        imageUrl = URL.createObjectURL(blob);
 
-      if (downloadButton) {
-        downloadButton.href = imageUrl;
-        downloadButton.classList.remove("hidden");
+        outputImage.src = imageUrl;
+        resultSection.classList.remove("hidden");
+
+        if (downloadButton) {
+          downloadButton.href = imageUrl;
+          downloadButton.classList.remove("hidden");
+        }
+
+        showToast("Imagen procesada correctamente", "success");
+      } else {
+          try {
+            const data = await response.json();
+            if (data?.error) {
+              showToast(data.error);
+            } else {
+              showToast("No se detectaron caras en la imagen.");
+            }
+          } catch {
+            // Si no es JSON, fallback a texto plano
+            const fallback = await response.text();
+            showToast(fallback || "No se detectaron caras.");
+          }
       }
 
-      showToast("Imagen procesada correctamente", "success");
     } catch (error) {
       showToast("No se pudo procesar la imagen. Inténtalo más tarde.");
     } finally {

@@ -1,8 +1,7 @@
-
 # === pixelator/app.py ===
 from flask import Flask, request, send_file
 from io import BytesIO
-from PIL import Image, ImageDraw
+from PIL import Image
 import sys
 
 app = Flask(__name__)
@@ -26,18 +25,19 @@ def pixelate():
         print(f"❌ Error al abrir imagen: {e}", file=sys.stderr)
         return f"Error al abrir imagen: {e}", 400
 
-    is_minor = request.form.get("is_minor", "True") == "True"
-    texto = "PIXELADA" if is_minor else "NO PIXELADA"
-
-    draw = ImageDraw.Draw(image)
-    draw.rectangle([(10, 10), (300, 60)], fill=(255, 255, 255))
-    draw.text((20, 20), texto, fill=(0, 0, 0))
+    # ✅ Pixelado real sin interpolación de color
+    pixel_size = 10  # Ajusta según el nivel de pixelado deseado
+    small = image.resize(
+        (image.width // pixel_size, image.height // pixel_size),
+        resample=Image.NEAREST
+    )
+    image = small.resize(image.size, Image.NEAREST)
 
     output = BytesIO()
     try:
         image.save(output, format="JPEG", quality=95)
         output.seek(0)
-        print("✅ Imagen guardada correctamente en JPEG", file=sys.stderr)
+        print("✅ Imagen pixelada correctamente", file=sys.stderr)
     except Exception as e:
         print(f"❌ Error al guardar imagen: {e}", file=sys.stderr)
         return f"Error al guardar imagen: {e}", 500
