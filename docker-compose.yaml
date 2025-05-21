@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+    command: flask run --host=0.0.0.0 --port=8000
+    environment:
+      - FLASK_APP=app.py       # Cambia si tu archivo principal tiene otro nombre
+      - FLASK_ENV=development
+    depends_on:
+      - engine
+
+  engine:
+    build: ./engine
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./engine:/app
+    command: flask run --host=0.0.0.0 --port=5000
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+    depends_on:
+      - bbox
+      - classifier
+      - pixelator
+
+  bbox:
+    build: ./bounding_box
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./bounding_box:/app
+    command: flask run --host=0.0.0.0 --port=5001
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+
+  classifier:
+    build: ./classifier
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./classifier:/app
+    command: flask run --host=0.0.0.0 --port=5002
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+
+  pixelator:
+    build: ./pixelator
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./pixelator:/app
+    command: flask run --host=0.0.0.0 --port=5003
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development

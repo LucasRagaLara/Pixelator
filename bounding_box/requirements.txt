@@ -1,0 +1,8 @@
+flask
+requests
+torch
+torchvision
+numpy
+opencv-python
+pillow
+mediapipe

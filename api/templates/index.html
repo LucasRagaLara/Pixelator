@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixelador de Caras</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <!-- NavBar -->
+  <header class="fixed top-0 w-full bg-gray-800 z-50 shadow">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="#inicio"><img src="{{ url_for('static', filename='images/pikachu.png') }}" alt="Pikachu" class="w-12 h-12"></a>
+        <span class="pixelify-sans-title text-xl font-bold tracking-wider">Pixelador</span>
+      </div>
+
+      <!-- Botón hamburguesa -->
+      <button id="menuToggle" class="lg:hidden focus:outline-none z-50 relative w-8 h-8 flex flex-col justify-center items-center space-y-1.5">
+        <span class="line w-6 h-0.5 bg-white transition-transform duration-300 origin-center"></span>
+        <span class="line w-6 h-0.5 bg-white transition-opacity duration-300"></span>
+        <span class="line w-6 h-0.5 bg-white transition-transform duration-300 origin-center"></span>
+      </button>
+
+
+      <!-- Menú principal -->
+      <ul class="hidden lg:flex space-x-6 text-sm font-medium">
+        <li><a href="#inicio" class="hover:text-blue-400">Inicio</a></li>
+        <li><a href="#subida" class="hover:text-blue-400">Subir Imagen</a></li>
+        <li><a href="#metricas" class="hover:text-blue-400">Métricas</a></li>
+        <li><a href="#sobre" class="hover:text-blue-400">Sobre</a></li>
+      </ul>
+    </nav>
+
+    <!-- Menú móvil animado -->
+    <div id="mobileMenu" class="lg:hidden max-h-0 overflow-hidden transition-all duration-500 bg-gray-800 px-4 text-sm font-medium">
+      <ul class="flex flex-col space-y-3 py-4">
+        <li><a href="#inicio" class="block py-1 hover:text-blue-400">Inicio</a></li>
+        <li><a href="#subida" class="block py-1 hover:text-blue-400">Subir Imagen</a></li>
+        <li><a href="#metricas" class="block py-1 hover:text-blue-400">Métricas</a></li>
+        <li><a href="#sobre" class="block py-1 hover:text-blue-400">Sobre</a></li>
+      </ul>
+    </div>
+
+  </header>
+
+  <main class="pt-20">
+    <!-- Inicio -->
+    <section id="inicio" class="min-h-screen flex flex-col items-center justify-center text-center p-6">
+      <h1 class="text-4xl font-extrabold mb-4">Bienvenido a Pixelador de Caras</h1>
+      <p class="max-w-xl text-lg text-gray-300">
+        Este sistema anonimiza imágenes detectando y pixelando automáticamente los rostros.
+        Perfecto para proteger la privacidad de menores y otros sujetos.
+      </p>
+    </section>
+
+    <!-- Subida -->
+    <section id="subida" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-800 w-full">
+      <h2 class="text-3xl font-bold mb-6">Subir Imagen</h2>
+      <form id="uploadForm" class="bg-gray-700 p-8 rounded-2xl shadow-lg space-y-6 w-full max-w-md">
+        <input type="file" name="image" id="imageInput" accept="image/*"
+               class="block w-full text-sm text-gray-300 bg-gray-600 rounded-lg border border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+        <button type="submit"
+                class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">
+          Procesar Imagen
+        </button>
+      </form>
+
+      <div id="result" class="mt-8 hidden text-center">
+        <h3 class="text-lg font-semibold mb-4">Resultado:</h3>
+        <img id="outputImage"
+            class="max-w-[500px] max-h-[500px] object-contain mx-auto border-4 border-blue-600 rounded-lg shadow-lg" />
+
+        <a id="downloadBtn" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition hidden" download="imagen_pixelada.jpg">Descargar imagen</a>
+        <p id="descargadaMsg" class="mt-2 text-sm text-green-400 hidden">Imagen descargada con éxito. Puedes subir otra imagen si lo deseas.</p>
+      </div>
+    </section>
+
+    <!-- Métricas -->
+    <section id="metricas" class="min-h-screen flex flex-col items-center justify-center p-6 w-full">
+      <h2 class="text-3xl font-bold mb-6">Métricas del Sistema</h2>
+      <p class="text-gray-400 mb-4">Aquí podrías mostrar número de imágenes procesadas, porcentaje de detecciones, tiempo medio, etc.</p>
+      <div class="grid grid-cols-2 gap-8 text-center">
+        <div class="bg-gray-800 p-6 rounded shadow">
+          <h3 class="text-xl font-semibold text-blue-400">1,248</h3>
+          <p class="text-gray-300">Imágenes procesadas</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded shadow">
+          <h3 class="text-xl font-semibold text-blue-400">98.3%</h3>
+          <p class="text-gray-300">Detecciones exitosas</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sobre -->
+    <section id="sobre" class="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-gray-800 w-full">
+      <h2 class="text-3xl font-bold mb-4">Sobre el proyecto</h2>
+      <p class="max-w-2xl text-gray-300">
+        Este sistema forma parte de un microservicio en Docker que incluye detección de caras, clasificación, pixelado y almacenamiento.
+        Diseñado por Lucas Raga como solución para anonimización de imágenes en contextos donde se requiere preservar la privacidad.
+      </p>
+    </section>
+  </main>
+    <!-- Flecha para volver arriba -->
+    <button id="scrollTopBtn" class="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 text-white text-2xl p-0 flex items-center justify-center rounded-full shadow-lg hover:bg-blue-700 transition-opacity opacity-0 pointer-events-none" aria-label="Volver arriba">↑</button>
+
+    <!-- Toast de error o información -->
+    <div id="toast"
+        class="fixed bottom-6 left-6 bg-red-600 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+    <!-- El mensaje se insertará por JS -->
+    </div>
+
+    <!-- Overlay + spinner + mensaje -->
+    <div id="spinner"
+        class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 hidden text-white">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
+    <p class="text-lg">Procesando imagen...</p>
+    </div>
+
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
