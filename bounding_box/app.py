@@ -1,4 +1,3 @@
-# === bbox/app.py ===
 from flask import Flask, request, jsonify
 from PIL import Image
 import numpy as np
@@ -9,21 +8,28 @@ import base64
 
 app = Flask(__name__)
 
-# Configurar detector de caras de MediaPipe
+# Inicializar detector de MediaPipe una vez
 mp_face_detection = mp.solutions.face_detection
 detector = mp_face_detection.FaceDetection(
-    model_selection=0,                 
-    min_detection_confidence=0.3       
+    model_selection=1,
+    min_detection_confidence=0.5
 )
 
 def detectar_caras(image_bytes):
-    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    try:
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    except Exception as e:
+        raise ValueError(f"No se pudo abrir la imagen: {str(e)}")
+
     image_np = np.array(image)
     h, w, _ = image_np.shape
 
-    results = detector.process(cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR))
-    resultados = []
+    try:
+        results = detector.process(cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR))
+    except Exception as e:
+        raise RuntimeError(f"Error al procesar la imagen con MediaPipe: {str(e)}")
 
+    resultados = []
     if results.detections:
         for detection in results.detections:
             bbox = detection.location_data.relative_bounding_box
@@ -37,6 +43,7 @@ def detectar_caras(image_bytes):
 
             rostro_rgb = image_np[y1:y2, x1:x2]
             rostro_bgr = cv2.cvtColor(rostro_rgb, cv2.COLOR_RGB2BGR)
+
             success, buffer = cv2.imencode(".jpg", rostro_bgr)
             if success:
                 encoded = base64.b64encode(buffer).decode("utf-8")
@@ -45,18 +52,29 @@ def detectar_caras(image_bytes):
                     "bbox": [x1, y1, x2, y2]
                 })
 
-    print(f"✅ Detecciones encontradas: {len(resultados)}")
     return resultados
 
 @app.route("/detect", methods=["POST"])
 def detect():
-    image_bytes = request.files["image"].read()
-    caras = detectar_caras(image_bytes)
+    try:
+        if "image" not in request.files:
+            return jsonify(error="No se recibió archivo 'image'"), 400
 
-    if not caras:
-        print("❌ No se detectaron caras.")
-        return "No se detectaron caras", 204
+        image_bytes = request.files["image"].read()
+        if not image_bytes:
+            return jsonify(error="La imagen está vacía"), 400
 
-    return jsonify({"faces": caras})
+        caras = detectar_caras(image_bytes)
 
-app.run(host="0.0.0.0", port=5001)
+        if not caras:
+            return jsonify(error="No se detectaron caras"), 204
+
+        return jsonify({"faces": caras})
+
+    except ValueError as ve:
+        return jsonify(error=str(ve)), 400
+    except Exception as e:
+        return jsonify(error=f"Error interno en el detector: {str(e)}"), 500
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001)

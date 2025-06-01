@@ -7,7 +7,7 @@ import os
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
 img_path = os.path.join(ruta_actual, "imagen3.jpg")
 
-url = "http://localhost:8000/procesar"
+url = "http://localhost:8000/api/v1/procesar"
 
 with open(img_path, "rb") as f:
     response = requests.post(url, files={"image": f})

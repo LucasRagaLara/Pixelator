@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const downloadButton = document.getElementById("downloadBtn");
   const toast = document.getElementById("toast");
   const scrollTopBtn = document.getElementById("scrollTopBtn");
+  const imageInput = document.getElementById("imageInput");
 
 
   function showToast(message, type = "error") {
@@ -164,5 +165,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  imageInput.addEventListener("change", () => {
+    resultSection.classList.add("hidden");
+    downloadButton.classList.add("hidden");
+    descargadaMsg.classList.add("hidden");
+    outputImage.src = "";
+    toast.classList.add("opacity-0", "pointer-events-none");
+  });
+
+
+  const imageModal = document.getElementById("imageModal");
+  const modalContent = document.getElementById("modalContent");
+  const modalImage = document.getElementById("modalImage");
+  const closeModal = document.getElementById("closeModal");
+
+  function openImageModal(src) {
+    modalImage.src = src;
+    imageModal.classList.remove("hidden");
+
+    // Forzar reflow
+    void modalContent.offsetWidth;
+
+    modalContent.classList.remove("scale-95", "opacity-0");
+    modalContent.classList.add("scale-100", "opacity-100");
+  }
+
+  function closeImageModal() {
+    modalContent.classList.remove("scale-100", "opacity-100");
+    modalContent.classList.add("scale-95", "opacity-0");
+
+    setTimeout(() => {
+      imageModal.classList.add("hidden");
+      modalImage.src = "";
+    }, 300);
+  }
+
+  document.querySelectorAll("#metricas img").forEach((img) => {
+    img.addEventListener("click", () => openImageModal(img.src));
+  });
+  closeModal.addEventListener("click", closeImageModal);
+  imageModal.addEventListener("click", (e) => {
+    if (e.target === imageModal) closeImageModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeImageModal();
+  });
 
 });

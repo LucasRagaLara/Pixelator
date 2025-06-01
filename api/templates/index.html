@@ -59,11 +59,25 @@
     <!-- Inicio -->
     <section id="inicio" class="min-h-screen flex flex-col items-center justify-center text-center p-6">
       <h1 class="text-4xl font-extrabold mb-4">Bienvenido a Pixelador de Caras</h1>
-      <p class="max-w-xl text-lg text-gray-300">
-        Este sistema anonimiza imágenes detectando y pixelando automáticamente los rostros.
-        Perfecto para proteger la privacidad de menores y otros sujetos.
+
+      <p class="text-blue-400 text-xl font-medium mb-4">
+        Privacidad visual protegida con inteligencia artificial
       </p>
+
+      <p class="max-w-xl text-lg text-gray-300">
+        Este sistema detecta, clasifica y pixeliza rostros automáticamente, preservando la identidad de menores en entornos sensibles.
+      </p>
+
+      <!-- Tecnologías -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mt-8 opacity-80 place-items-center">
+        <img src="{{ url_for('static', filename='images/icons/python.png') }}" alt="Python" class="w-14 h-14" />
+        <img src="{{ url_for('static', filename='images/icons/tensorflow.png') }}" alt="TensorFlow" class="w-14 h-14" />
+        <img src="{{ url_for('static', filename='images/icons/opencv.png') }}" alt="OpenCV" class="w-14 h-14" />
+        <img src="{{ url_for('static', filename='images/icons/docker.png') }}" alt="Docker" class="w-14 h-14" />
+        <img src="{{ url_for('static', filename='images/icons/flask.png') }}" alt="Flask" class="w-14 h-14" />
+      </div>
     </section>
+
 
     <!-- Subida -->
     <section id="subida" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-800 w-full">
@@ -77,40 +91,84 @@
         </button>
       </form>
 
-      <div id="result" class="mt-8 hidden text-center">
-        <h3 class="text-lg font-semibold mb-4">Resultado:</h3>
-        <img id="outputImage"
-            class="max-w-[10rem] max-h-[10rem] object-contain mx-auto border-4 border-blue-600 rounded-lg shadow-lg" />
+      <div id="result" class="mt-8 hidden flex flex-col items-center justify-center text-center space-y-4">
+        <h3 class="text-lg font-semibold">Resultado:</h3>
 
-        <a id="downloadBtn" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition hidden" download="imagen_pixelada.jpg">Descargar imagen</a>
-        <p id="descargadaMsg" class="mt-2 text-sm text-green-400 hidden">Imagen descargada con éxito. Puedes subir otra imagen si lo deseas.</p>
+        <div class="p-2 bg-gray-700 rounded-xl shadow-md ring-1 ring-gray-600">
+          <img id="outputImage"
+              class="max-w-[16rem] max-h-[16rem] object-contain rounded-lg" />
+        </div>
+
+        <a id="downloadBtn"
+          class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition hidden"
+          download="imagen_pixelada.jpg">
+          Descargar imagen
+        </a>
+
+        <p id="descargadaMsg" class="text-sm text-green-400 hidden">
+          Imagen descargada con éxito. Puedes subir otra imagen si lo deseas.
+        </p>
       </div>
     </section>
 
     <!-- Métricas -->
+
     <section id="metricas" class="min-h-screen flex flex-col items-center justify-center p-6 w-full">
       <h2 class="text-3xl font-bold mb-6">Métricas del Sistema</h2>
-      <p class="text-gray-400 mb-4">Aquí podrías mostrar número de imágenes procesadas, porcentaje de detecciones, tiempo medio, etc.</p>
-      <div class="grid grid-cols-2 gap-8 text-center">
-        <div class="bg-gray-800 p-6 rounded shadow">
-          <h3 class="text-xl font-semibold text-blue-400">1,248</h3>
-          <p class="text-gray-300">Imágenes procesadas</p>
+      <p class="text-gray-400 mb-8 text-center max-w-2xl">
+        Análisis de rendimiento del modelo incluyendo precisión, recall, f1-score, pérdida en validación y matriz de confusión.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+        {% for img in [
+          ('configs.png', 'Comparativa de configuraciones'),
+          ('confusion_matriz.png', 'Matriz de confusión'),
+          ('metricas.png', 'Precisión, Recall y F1-score'),
+          ('perdida_validacion.png', 'Evolución de la pérdida'),
+          ('precision_validacion.png', 'Precisión durante validación')
+        ] %}
+        <div class="bg-gray-800 p-4 rounded shadow flex flex-col justify-between h-64">
+          <div class="flex items-center justify-center h-36 w-full">
+            <img src="{{ url_for('static', filename='images/metrics/' + img[0]) }}"
+                alt="{{ img[1] }}"
+                class="max-h-full max-w-full object-contain cursor-pointer" />
+          </div>
+          <p class="mt-4 text-sm text-gray-400 text-center">{{ img[1] }}</p>
         </div>
-        <div class="bg-gray-800 p-6 rounded shadow">
-          <h3 class="text-xl font-semibold text-blue-400">98.3%</h3>
-          <p class="text-gray-300">Detecciones exitosas</p>
-        </div>
+        {% endfor %}
       </div>
     </section>
 
+
     <!-- Sobre -->
-    <section id="sobre" class="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-gray-800 w-full">
-      <h2 class="text-3xl font-bold mb-4">Sobre el proyecto</h2>
-      <p class="max-w-2xl text-gray-300">
-        Este sistema forma parte de un microservicio en Docker que incluye detección de caras, clasificación, pixelado y almacenamiento.
-        Diseñado por Lucas Raga como solución para anonimización de imágenes en contextos donde se requiere preservar la privacidad.
-      </p>
+    <section id="sobre" class="min-h-screen flex items-center justify-center bg-gray-800 w-full px-6 py-16">
+      <div class="max-w-4xl w-full text-left text-gray-300 space-y-4">
+        <h2 class="text-3xl font-bold text-white border-b border-gray-600 pb-2">Sobre el proyecto</h2>
+
+        <p>
+          Este sistema ha sido diseñado como una solución completa para la anonimización de imágenes mediante el reconocimiento facial automatizado. El objetivo principal es detectar rostros en imágenes y aplicar un pixelado selectivo únicamente cuando se identifica que la persona retratada es menor de edad, protegiendo así su identidad en entornos sensibles.
+        </p>
+        <p>
+          El sistema está desarrollado como una arquitectura de microservicios en Docker, separando funcionalmente cada tarea: detección facial, clasificación por edad, pixelado y recomposición de la imagen. La comunicación entre servicios se realiza mediante HTTP, manteniendo cada componente independiente y reutilizable.
+        </p>
+        <p>
+          Para la clasificación de edad, se ha entrenado una red neuronal convolucional personalizada, sin modelos preentrenados, utilizando un dataset curado de rostros etiquetados. Uno de los principales retos fue ajustar correctamente la arquitectura y los umbrales de decisión para minimizar los errores: evitar tanto la pixelación innecesaria de adultos como el fallo crítico de no anonimizar a un menor.
+        </p>
+        <p>
+          A lo largo del desarrollo se enfrentaron desafíos técnicos como el ajuste del umbral óptimo de clasificación, la calibración de probabilidades, la gestión de versiones del modelo en entorno Docker y la validación visual del procesamiento completo. Todo ello ha sido afinado con evaluaciones métricas, visualización de curvas, matrices de confusión y validación manual.
+        </p>
+        <p>
+          Este proyecto es el resultado de integrar IA, visión por computador y desarrollo backend de forma modular, con un enfoque ético y funcional. Está pensado para ser fácilmente escalable e integrable en flujos de trabajo reales donde la protección de la identidad es clave.
+        </p>
+      </div>
     </section>
+
+    <footer class="w-full bg-gray-900 text-gray-400 text-sm text-center flex items-center justify-center my-8">
+      <p>
+        Creado por <span class="font-semibold text-white">Carla Ruiz</span> y <span class="font-semibold text-white">Lucas Raga</span> · 2025 &copy; Todos los derechos reservados.
+      </p>
+    </footer>
+
   </main>
     <!-- Flecha para volver arriba -->
     <button id="scrollTopBtn" class="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 text-white text-2xl p-0 flex items-center justify-center rounded-full shadow-lg hover:bg-blue-700 transition-opacity opacity-0 pointer-events-none" aria-label="Volver arriba">↑</button>
@@ -123,11 +181,32 @@
 
     <!-- Overlay + spinner + mensaje -->
     <div id="spinner"
-        class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 hidden text-white">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
-    <p class="text-lg">Procesando imagen...</p>
+        class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex flex-col items-center justify-center z-50 hidden text-white">
+
+      <div class="relative w-16 h-16 mb-6">
+        <div class="absolute inset-0 rounded-full border-4 border-t-transparent border-white animate-spin"></div>
+      </div>
+
+      <p class="text-xl font-medium tracking-wide animate-pulse">Procesando imagen...</p>
     </div>
 
+    <!-- Modal de imagen ampliada -->
+    <div id="imageModal" class="fixed inset-0 z-50 bg-black bg-opacity-80 hidden flex items-center justify-center">
+      <div id="modalContent" class="relative max-w-4xl w-auto transform scale-95 opacity-0 transition-all duration-300 ease-in-out">
+
+        <!-- Botón de cerrar -->
+        <button id="closeModal"
+                class="absolute top-2 right-2 z-50 bg-black bg-opacity-70 text-white text-2xl rounded-full w-10 h-10 flex items-center justify-center hover:text-red-500 hover:bg-opacity-90 transition">
+          &times;
+        </button>
+
+        <!-- Imagen -->
+        <img id="modalImage"
+            src=""
+            alt="Vista ampliada"
+            class="max-h-[80vh] w-auto object-contain rounded shadow-lg" />
+      </div>
+    </div>
   <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
