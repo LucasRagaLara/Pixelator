@@ -1,43 +1,64 @@
-# 🧠 Pixelador de Caras
+# Pixelador de Caras
 
 Sistema automático de anonimización de imágenes que detecta rostros, clasifica si pertenecen a menores de edad y los pixeliza si es necesario. Está diseñado como un sistema de microservicios en Docker, totalmente escalable, eficiente y usable desde una interfaz web.
 
-## 🚀 ¿Qué hace este sistema?
+## ¿Qué hace este sistema?
 
-1. **Recibe una imagen desde una API o frontend web.**
-2. **Detecta rostros** mediante un servicio de detección de caras (bbox).
-3. **Clasifica cada rostro** (menor o mayor de edad) con un modelo propio entrenado en TensorFlow.
-4. **Pixeliza los rostros** de menores respetando su privacidad.
-5. **Devuelve la imagen procesada** al usuario.
-6. **Todo se realiza en segundos**, con feedback visual y mensajes desde el frontend.
+1. Recibe una imagen desde una API o frontend web.
+2. Detecta rostros mediante un servicio de detección de caras (bbox).
+3. Clasifica cada rostro (menor o mayor de edad) con un modelo propio entrenado en TensorFlow.
+4. Pixeliza los rostros de menores respetando su privacidad.
+5. Devuelve la imagen procesada al usuario.
+6. Todo se realiza en segundos, con feedback visual y mensajes desde el frontend.
 
-## 📦 Estructura del proyecto
+## Arquitectura del sistema
 
-```bash
+El sistema se estructura en 5 microservicios independientes:
+
+* `api/`: interfaz principal que recibe las imágenes.
+* `engine/`: orquestador que conecta los servicios.
+* `bounding_box/`: detección facial mediante Mediapipe.
+* `classifier/`: red neuronal que clasifica si el rostro es de un menor.
+* `pixelator/`: aplica el pixelado solo si corresponde.
+
+Estos servicios se comunican vía HTTP y corren en contenedores Docker, permitiendo escalabilidad y aislamiento.
+
+## Estructura del proyecto
+
+```
 Pixelator/
-├── api/               # Interfaz principal HTTP
-├── engine/            # Orquestador de microservicios
-├── bbox/              # Detección de rostros
-├── classifier/        # Clasificación por edad
-├── pixelator/         # Pixelado de rostros
-├── frontend/          # Interfaz web con Tailwind + JS
-├── models/            # Modelos Keras (.h5 / .keras)
-├── static/            # Recursos estáticos (imágenes, CSS)
-└── docker-compose.yaml
+├── api/
+│   └── static/  
+│   └── templates/  
+├── bounding_box/
+├── caras/
+├── classifier/
+├── docs/
+├── engine/
+├── models/
+├── pixelator/
+├── pruebas/
+│   └── rendimiento/        
+│   └── testing/       
+├── docker-compose.yaml
+├── dockerfile
+├── readme.md
+├── resultado_final.bin
+└── docs/README_errores.md   
 ```
 
-## 🧰 Tecnologías utilizadas
+## Tecnologías utilizadas
 
-* **Python 3.10**
-* **TensorFlow + Keras** — para el modelo de clasificación de edad
-* **OpenCV** — manipulación de imágenes
-* **Flask** — microservicios REST
-* **Docker** — para contenerización y despliegue
-* **Tailwind CSS** — diseño moderno y responsive
-* **HTML + JavaScript** — interacción de frontend
-* **Mediapipe / Haar cascades** — detección facial
+* Python 3.10
+* TensorFlow + Keras
+* OpenCV
+* Flask
+* Docker
+* Tailwind CSS
+* HTML + JavaScript
+* Mediapipe / Haar cascades
 
-## 📸 Modelo de Clasificación
+## Modelo de Clasificación
 
 * Entrenado desde cero con imágenes recortadas de caras.
 * Dataset balanceado (adultos vs menores).
@@ -52,57 +73,90 @@ Precision:    0.90 (menores)
 Recall:       0.70 (menores)
 ```
 
-## 🛠️ Cómo levantar el proyecto
+## Cómo levantar el proyecto
 
 1. Clona el repositorio:
 
 ```bash
-git clone https://github.com/tuusuario/pixelador-caras.git
-cd pixelador-caras
+git clone https://github.com/LucasRagaLara/Pixelator.git
+cd Pixelator
 ```
 
 2. Asegúrate de tener Docker instalado.
 
-3. Construye y lanza los servicios:
+3. Ejecuta los servicios:
 
 ```bash
-   docker-compose -p api-pixel build
-   docker-compose -p api-pixel up
+docker-compose -p api-pixel build
+docker-compose -p api-pixel up
 ```
 
 4. Abre el navegador en:
-   `http://localhost:8000/api`
 
-## 📊 Entrenamiento del modelo
+```
+http://localhost:8000/api
+```
 
-Si deseas reentrenar el modelo:
+## Cómo probar la API
+
+Puedes subir una imagen desde la interfaz web para probar todo el flujo.
+Alternativamente, puedes usar herramientas como Postman o `curl`:
+
+```bash
+curl -X POST -F "image=@ruta/a/imagen.jpg" http://localhost:8000/api/v1/procesar --output salida.jpg
+```
+
+## Entrenamiento del modelo
+
+Para reentrenar el modelo de clasificación:
 
 ```bash
 cd models
-python modelo_edad.ipynb
+# Abre y ejecuta modelo_edad.ipynb con Jupyter Notebook
 ```
 
-Ajusta hiperparámetros en `configs`, mejora el dataset o entrena con nuevos umbrales de decisión.
+Se recomienda usar **TensorFlow con soporte para GPU**, ya que el entrenamiento puede ser costoso computacionalmente.
 
-## 🎯 Casos de uso
+## Casos de uso
 
 * Anonimización en medios de comunicación
 * Tratamiento de imágenes escolares
 * Herramientas de privacidad para menores en redes sociales
 * Censura automática en contextos legales
 
-## 📊 Métricas visuales
+## Métricas visuales
 
-La interfaz web incluye gráficas y contadores animados para visualizar:
+La interfaz incluye gráficas y contadores para visualizar:
 
-* Nº de imágenes procesadas
-* % de detección efectiva
+* Número de imágenes procesadas
+* Porcentaje de detección efectiva
 * Tiempos de respuesta
-* Logs de clasificación
+* Métricas de precisión, recall, F1-score y pérdida
 
-## ✍️ Autoría y agradecimientos
+## Pruebas unitarias
+
+Para ejecutar pruebas individuales sobre los servicios, consulta la carpeta:
+
+```
+pruebas/testing/
+```
+
+Allí encontrarás ejemplos que permiten validar detección, clasificación y pixelado por separado.
+
+## Gestión de Errores por Servicio
+
+Consulta el documento completo aquí:
+
+[`docs/README_errores.md`](docs/README_errores.md)
+
+Allí se detalla cómo responde cada microservicio ante situaciones como imágenes inválidas, servicios desconectados, errores de clasificación o fallos internos.
+
+## Autoría y agradecimientos
 
 Desarrollado como parte de un proyecto académico por:
 
-* **Carla Ruiz y Lucas Raga** — Desarrollo completo, modelo IA, backend y frontend
-* **Colaboraciones**: mejora de UX, evaluación y testeo de sistema
+* Carla Ruiz y Lucas Raga — Desarrollo completo, modelo IA, backend y frontend
+
+## Licencia
+
+MIT — Puedes usarlo, modificarlo y compartirlo. Pero da crédito.
