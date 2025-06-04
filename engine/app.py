@@ -40,8 +40,9 @@ def handle():
                 # Paso 2: Clasificación de edad
                 r_clf = requests.post("http://classifier:5002/classify", files={"face": face_io}, timeout=5)
                 r_clf.raise_for_status()
-                is_minor = r_clf.json().get("menor", False)
-
+                clf_data = r_clf.json()
+                is_minor = clf_data.get("menor", False)
+                score = clf_data.get("score", 0.0)
                 face_io.seek(0)
 
                 # Paso 3: Pixelado si es menor
@@ -56,10 +57,27 @@ def handle():
                 cara_redimensionada = cara_modificada.resize((x2 - x1, y2 - y1))
                 cara_array = np.array(cara_redimensionada)
 
-                if cara_array.shape[0] == (y2 - y1) and cara_array.shape[1] == (x2 - x1):
-                    if is_minor:
-                        cv2.rectangle(original_np, (x1, y1), (x2, y2), (255, 0, 0), thickness=5)
+                if cara_array.shape[:2] == (y2 - y1, x2 - x1):
                     original_np[y1:y2, x1:x2] = cara_array
+
+                    # Colores: rojo (menor), verde (mayor)
+                    color = (0, 255, 0) if not is_minor else (0, 0, 255)
+
+                    # Dibujar recuadro
+                    cv2.rectangle(original_np, (x1, y1), (x2, y2), color, thickness=3)
+
+                    # Dibujar texto con score
+                    label = f"{'Menor' if is_minor else 'Mayor'} ({score:.2f})"
+                    font_scale = 0.6
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    thickness = 2
+                    (text_width, text_height), _ = cv2.getTextSize(label, font, font_scale, thickness)
+
+                    # Coordenadas para el texto encima del recuadro
+                    text_x = x1
+                    text_y = y1 - 10 if y1 - 10 > text_height else y1 + text_height + 10
+
+                    cv2.putText(original_np, label, (text_x, text_y), font, font_scale, color, thickness, cv2.LINE_AA)
 
             except Exception:
                 # Si falla un rostro, lo saltamos sin interrumpir todo el proceso

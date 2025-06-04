@@ -12,7 +12,7 @@ try:
 except Exception as e:
     raise RuntimeError(f"No se pudo cargar el modelo: {str(e)}")
 
-THRESHOLD = 0.40
+THRESHOLD = 0.738
 
 def predecir_edad(image_bytes):
     try:
@@ -20,7 +20,8 @@ def predecir_edad(image_bytes):
         img_array = tf.keras.utils.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
         pred = modelo.predict(img_array)[0][0]
-        return int(pred > THRESHOLD)
+        menor = int(pred > THRESHOLD)
+        return menor, float(pred)
     except Exception as e:
         raise ValueError(f"Error al procesar la imagen: {str(e)}")
 
@@ -34,8 +35,8 @@ def classify():
         if not face_bytes:
             return jsonify(error="La imagen está vacía"), 400
 
-        menor = predecir_edad(face_bytes)
-        return jsonify({"menor": bool(menor)})
+        menor, score = predecir_edad(face_bytes)
+        return jsonify({"menor": bool(menor), "score": round(score, 4)})
 
     except ValueError as ve:
         return jsonify(error=str(ve)), 400
